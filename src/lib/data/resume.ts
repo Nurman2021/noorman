@@ -27,7 +27,7 @@ import BuildSpaceImg from '$lib/imgs/buildspace.jpg';
 export let DATA = {
 	name: 'Nurman Awaluddin',
 	initials: 'NR',
-	url: 'https://github.com/Nurman2021',
+	url: 'https://noorman.vercel.app/',
 	img: 'https://ik.imagekit.io/nurman/Portofolio/thumnail.png?updatedAt=1727345478630',
 	location: 'Makassar, Indonesia',
 	locationLink: 'https://www.google.com/maps/place/makassar',
