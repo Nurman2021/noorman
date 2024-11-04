@@ -2,6 +2,7 @@
 	import * as THREE from 'three';
 	import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 	import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+	import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment';
 	import { onMount } from 'svelte';
 
 	let mixer;
@@ -33,12 +34,18 @@
 		camera.position.z = 5;
 
 		const renderer = new THREE.WebGLRenderer({ alpha: true });
+		renderer.outputEncoding = THREE.sRGBEncoding;
+		renderer.toneMapping = THREE.ACESFilmicToneMapping;
+		renderer.toneMappingExposure = 1.5;
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		document.body.appendChild(renderer.domElement);
 
+		const pmremGenerator = new THREE.PMREMGenerator(renderer);
+		scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
+
 		// Load the GLB model
 		const loader = new GLTFLoader();
-		loader.load('/model/infinian_lineage_series.glb', (gltf) => {
+		loader.load('/model/scene.glb', (gltf) => {
 			scene.add(gltf.scene);
 			console.log(gltf);
 
@@ -57,17 +64,31 @@
 		controls.dampingFactor = 0.25;
 
 		// lighting
-		const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+		const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
 		scene.add(ambientLight);
 
-		const directionalLight = new THREE.DirectionalLight(0xffffff, 5);
+		const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
 		directionalLight.position.set(5, 10, 7.5);
+		directionalLight.castShadow = true;
+		directionalLight.shadow.mapSize.width = 1024;
+		directionalLight.shadow.mapSize.height = 1024;
+		directionalLight.shadow.camera.near = 0.5;
+		directionalLight.shadow.camera.far = 50;
 		scene.add(directionalLight);
+
+		const pointlight = new THREE.PointLight(0xffffff, 1, 50);
+		pointlight.position.set(0, 10, 10);
+		scene.add(pointlight);
+
+		const hemiLight = new THREE.HemisphereLight(0xaaaaaa, 0x444444, 0.6);
+		hemiLight.position.set(0, 10, 0);
+		scene.add(hemiLight);
 
 		// Update animation frame
 		function animate() {
 			requestAnimationFrame(animate);
-			if (mixer) mixer.update(0.01); // Update mixer for animations
+			if (mixer) mixer.update(0.01);
+			controls.update();
 			renderer.render(scene, camera);
 		}
 
