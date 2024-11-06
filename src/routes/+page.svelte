@@ -1,4 +1,5 @@
 <script>
+	import '../app.css';
 	import * as THREE from 'three';
 	import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 	import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
@@ -9,19 +10,51 @@
 	let animations = [];
 	let activeAnimationIndex = 0;
 	let controls;
+	let clock;
 
-	function playAnimation(index) {
-		if (mixer && animations.length > index) {
-			mixer.stopAllAction();
-			mixer.clipAction(animations[index]).play();
-		}
-	}
+    function playWithTransition(index, nextAnimationIndex = null, transitionDuration = 0.5) {
+        // Cek jika mixer belum ada, mulai animasi default (index 0)
+        if (!mixer) {
+            console.warn("Mixer undefined, playing default animation at index 0.");
+            index = 0;
+        }
 
-	function handleSectionChange(sectionIndex) {
-		activeAnimationIndex = sectionIndex % animations.length;
-		playAnimation(activeAnimationIndex);
-		console.log('active index=>', activeAnimationIndex);
-	}
+        if (mixer && animations.length > index) {
+            const currentAction = mixer.clipAction(animations[index]);
+            const nextAction = nextAnimationIndex !== null ? mixer.clipAction(animations[nextAnimationIndex]) : null;
+
+            mixer.stopAllAction();
+            currentAction.reset().play();
+
+            if (nextAction) {
+                currentAction.crossFadeTo(nextAction, transitionDuration, false);
+                setTimeout(() => {
+                    nextAction.reset().play();
+                }, currentAction.getClip().duration * 1000 - transitionDuration * 1000);
+            }
+        } else {
+            console.warn(`Animation index ${index} is out of range or mixer is undefined.`);
+        }
+    }
+
+	// function playAnimation(index) {
+	// 	if (mixer && animations.length > index) {
+	// 		mixer.stopAllAction();
+	// 		mixer.clipAction(animations[index]).play();
+	// 	}
+	// }
+
+  function handleSectionChange(sectionIndex) {
+        activeAnimationIndex = sectionIndex % animations.length;
+
+        // Jika animasi adalah "attack" (misalnya index 1), transisi kembali ke "idle" setelahnya
+        // if (activeAnimationIndex === 1) {
+            // playWithTransition(activeAnimationIndex, 0); // Transisi ke "idle" setelah "attack"
+        // } else {
+            playWithTransition(activeAnimationIndex);
+        // }
+        console.log('active index =>', activeAnimationIndex);
+    }
 
 	onMount(() => {
 		const scene = new THREE.Scene();
@@ -32,27 +65,39 @@
 			1000
 		);
 		camera.position.z = 5;
+		camera.lookAt(60, 3.5, 0);
 
-		const renderer = new THREE.WebGLRenderer({ alpha: true });
+		clock = new THREE.Clock();
+
+		const renderer = new THREE.WebGLRenderer({
+			alpha: true,
+			canvas: document.querySelector('#bg')
+		});
 		renderer.outputEncoding = THREE.sRGBEncoding;
 		renderer.toneMapping = THREE.ACESFilmicToneMapping;
 		renderer.toneMappingExposure = 1.5;
 		renderer.setSize(window.innerWidth, window.innerHeight);
-		document.body.appendChild(renderer.domElement);
 
 		const pmremGenerator = new THREE.PMREMGenerator(renderer);
 		scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
 
+		const axesHelper = new THREE.AxesHelper(5);
+		scene.add(axesHelper);
+
 		// Load the GLB model
 		const loader = new GLTFLoader();
-		loader.load('/model/scene.glb', (gltf) => {
-			scene.add(gltf.scene);
+		loader.load('/model/lord.glb', (gltf) => {
+			const model = gltf.scene;
+			model.position.set(0.3, -1.3, 0);
+
+			scene.add(model);
 			console.log(gltf);
 
 			animations = gltf.animations;
 			if (animations.length > 0) {
 				mixer = new THREE.AnimationMixer(gltf.scene);
-				playAnimation(0); // Play the first animation initially
+
+				playWithTransition(0);
 			}
 
 			animate();
@@ -87,7 +132,8 @@
 		// Update animation frame
 		function animate() {
 			requestAnimationFrame(animate);
-			if (mixer) mixer.update(0.01);
+			if (mixer) mixer.update(clock.getDelta());
+
 			controls.update();
 			renderer.render(scene, camera);
 		}
@@ -100,38 +146,48 @@
 	});
 </script>
 
-<section
-	on:click={() => handleSectionChange(0)}
-	role="button"
-	tabindex="0"
-	on:keydown={() => handleSectionChange(0)}
->
-	About
-</section>
-<section
-	on:click={() => handleSectionChange(1)}
-	role="button"
-	tabindex="0"
-	on:keydown={() => handleSectionChange(1)}
->
-	Experience
-</section>
-<section
-	on:click={() => handleSectionChange(2)}
-	role="button"
-	tabindex="0"
-	on:keydown={() => handleSectionChange(2)}
->
-	Projects
-</section>
-<section
-	on:click={() => handleSectionChange(10)}
-	role="button"
-	tabindex="0"
-	on:keydown={() => handleSectionChange(10)}
->
-	Contact
-</section>
+
+
+
+<canvas id="bg" class="fixed z-10 h-screen"></canvas>
+<main class="absolute top-0 z-20">
+
+<span>animasi yang bisa ==> 2, 0,3(sedikit), 4(sedikit), 5(skill), 6,8,9,10,11<span/> 
+
+	<h1 class=" text-xl text-red-500">ini bagian content</h1>
+	<section
+		on:click={() => handleSectionChange(0)}
+		role="button"
+		tabindex="0"
+		on:keydown={() => handleSectionChange(0)}
+	>
+		About
+	</section>
+	<section
+		on:click={() => handleSectionChange(1)}
+		role="button"
+		tabindex="0"
+		on:keydown={() => handleSectionChange(1)}
+	>
+		Experience
+	</section>
+	<section
+		on:click={() => handleSectionChange(6)}
+		role="button"
+		tabindex="0"
+		on:keydown={() => handleSectionChange(6)}
+	>
+		Projects
+	</section>
+	<section
+		on:click={() => handleSectionChange(12)}
+		role="button"
+		tabindex="0"
+		on:keydown={() => handleSectionChange(12)}
+	>
+		Contact
+	</section>
+</main>
 
 <style>
 </style>
