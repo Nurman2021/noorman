@@ -148,13 +148,10 @@
 
 
 
-
-<canvas id="bg" class="fixed z-10 h-screen"></canvas>
+<canvas id="bg" class="fixed z-10 h-screen bg-neutral-950 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]"></canvas>
 <main class="absolute top-0 z-20">
 
-<span>animasi yang bisa ==> 2, 0,3(sedikit), 4(sedikit), 5(skill), 6,8,9,10,11<span/> 
-
-	<h1 class=" text-xl text-red-500">ini bagian content</h1>
+	<h2 class="text-center text-3xl font-medium text-gray-50 sm:text-6xl">Painting Anything<span class="animate-text-gradient inline-flex bg-gradient-to-r from-neutral-100 via-slate-400 to-neutral-400 bg-[200%_auto] bg-clip-text leading-tight text-transparent">on canvas</span></h2>
 	<section
 		on:click={() => handleSectionChange(0)}
 		role="button"
@@ -180,14 +177,18 @@
 		Projects
 	</section>
 	<section
-		on:click={() => handleSectionChange(12)}
+		on:click={() => handleSectionChange(9)}
 		role="button"
 		tabindex="0"
-		on:keydown={() => handleSectionChange(12)}
+		on:keydown={() => handleSectionChange(9)}
 	>
 		Contact
 	</section>
 </main>
 
 <style>
+	section{
+		height: 100vh;
+		/* width: 10; */
+	}
 </style>

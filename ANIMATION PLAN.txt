@@ -1,4 +1,3 @@
 1. Animasi 0 sebagai animasi DEFAULTnya
 2. Animasi 2 reverse/ animasi 9 untuk heronya
 3. Animasi 5/6/11 untuk animasi keluarkan kontent/project
-4. 
