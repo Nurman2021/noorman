@@ -2,3 +2,8 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 @import '@fontsource/fira-mono';
+
+@font-face{
+    font-family: 'DrukWideBold';
+    src: url(/fonts/DrukWideBold.ttf) format('truetype');
+}
